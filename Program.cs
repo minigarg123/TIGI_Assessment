@@ -1,3 +1,5 @@
+using FellowOakDicom;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -16,10 +18,30 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
 app.MapControllers();
 
+GenerateDicomFile();
+
 app.Run();
+
+void GenerateDicomFile()
+{
+    var dicomDataset = new DicomDataset
+    {
+        { DicomTag.PatientID, "123456" },
+        { DicomTag.PatientName, "John Doe" },
+        { DicomTag.StudyDescription, "Test Study" },
+        { DicomTag.Modality, "CT" },
+        { DicomTag.SOPClassUID, DicomUID.SecondaryCaptureImageStorage },
+          { DicomTag.SOPInstanceUID, DicomUID.Generate() }
+    };
+
+    string filePath = @"D:\test.dcm";
+    var dicomFile = new DicomFile(dicomDataset);
+    dicomFile.Save(filePath);
+    Console.WriteLine($"DICOM file created at: {filePath}");
+}
